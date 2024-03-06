@@ -1,0 +1,24 @@
+---
+galazy_info:
+  author: ndkprd
+  role_name: fortiadc-acme-dns-01-challenge
+  description: An Ansible role to do ACME DNS01 challenge using FortiADC as provider.
+
+  license: MIT
+
+  min_ansible_version: '2.12'
+
+  platform:
+    - name: "RHEL/CentOS"
+      versions:
+        - '7'
+        - '8'
+        - '9'
+
+  galaxy_tags:
+    - fortiadc
+    - fortinet
+    - acme
+    - letsencrypt
+
+  dependencies: []
