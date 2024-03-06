@@ -21,4 +21,4 @@ galaxy_info:
     - acme
     - letsencrypt
 
-  dependencies: []
+dependencies: []
