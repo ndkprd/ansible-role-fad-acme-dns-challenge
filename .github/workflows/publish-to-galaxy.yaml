@@ -13,8 +13,6 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v2
-        # with:
-          # path: "${{ github.repository }}"
       - name: galaxy
         uses: robertdebock/galaxy-action@1.2.0
         with:
