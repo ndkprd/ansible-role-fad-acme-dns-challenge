@@ -9,7 +9,7 @@
       - python3
       - python3-pip
       - python3-setuptools
-    state: latest
+    state: present
     update_cache: true
 
 - name: Set Python interpreter
@@ -20,7 +20,7 @@
   ansible.builtin.pip:
     name:
       - cryptography
-    state: latest
+    state: present
 
 - name: Make sure the needed directory exists.
   ansible.builtin.file:
@@ -49,9 +49,9 @@
     email_address: "{{ acme_account_email }}"
     subject_alt_name: "{{ cert_san | map('regex_replace', '^', 'DNS:') | list }}"
 
-#- name: Create underscore variable based on base domain
-  #ansible.builtin.set_fact:
-    #base_domain_variable: "{{ acme.base_domain | regex_replace('\\.', '_') }}"
+# - name: Create underscore variable based on base domain
+  # ansible.builtin.set_fact:
+    # base_domain_variable: "{{ acme.base_domain | regex_replace('\\.', '_') }}"
 
 - name: Create a challenge for the wildcard domain using a account key file.
   community.crypto.acme_certificate:
@@ -66,14 +66,9 @@
     terms_agreed: true
   register: dns_challenge
 
-#- name: Debug dns_challenge variable.
-  #ansible.builtin.debug:
-    #var: dns_challenge
-
-#VERSION 0.1
-#- name: Extract ACME TXT value.
-  #ansible.builtin.set_fact:
-    #dns_challenge_txt: "{{ dns_challenge.challenge_data[acme_wildcard_domain]['dns-01'].resource_value }}"
+# - name: Debug dns_challenge variable.
+  # ansible.builtin.debug:
+    # var: dns_challenge
 
 - name: Extract the DNS-01 ACME Challenge TXT value for base domain.
   ansible.builtin.set_fact:
@@ -85,12 +80,11 @@
     wildcard_dns_challenge_txt: "{{ dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value }}"
   when: dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value is defined
 
-#- name: Print out the auth subdomain and the DNS-01 TXT value.
-  #ansible.builtin.debug:
-    #msg: "The domain used for authentication is {{ dns_auth_subdomain }} with TXT value of {{ dns_challenge_txt }}."
-  #when: dns_challenge.challenge_data_dns is defined
+# - name: Print out the auth subdomain and the DNS-01 TXT value.
+  # ansible.builtin.debug:
+    # msg: "The domain used for authentication is {{ dns_auth_subdomain }} with TXT value of {{ dns_challenge_txt }}."
+  # when: dns_challenge.challenge_data_dns is defined
 
-#using PUT against an existing record to make sure it doesn't add more additional record
 - name: Create TXT Record on FortiADC using REST API for base domain.
   ansible.builtin.uri:
     method: POST
@@ -105,7 +99,7 @@
   loop: "{{ fortiadc }}"
   loop_control:
     label: "{{ item.host }}"
-  #when: dns_challenge.challenge_data[base_domain]['dns-01'].resource_value is defined
+  # when: dns_challenge.challenge_data[base_domain]['dns-01'].resource_value is defined
   when: base_dns_challenge_txt is defined
   register: status
   changed_when: status == 200
@@ -124,7 +118,7 @@
   loop: "{{ fortiadc }}"
   loop_control:
     label: "{{ item.host }}"
-  #when: dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value is defined
+  # when: dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value is defined
   when: wildcard_dns_challenge_txt is defined
   register: status
   changed_when: status

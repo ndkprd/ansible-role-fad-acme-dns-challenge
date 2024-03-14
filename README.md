@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Frankenstein [Ansible](https://www.ansible.com) playbook to create [Let's Encrypt](https://letsencrypt.org/docs/client-options/) SSL certificate using DNS01 challenge, using [Fortinet's FortiADC](https://www.fortinet.com/products/application-delivery-controller/fortiadc) global-dns-server.
+[Ansible](https://www.ansible.com) role to create [Let's Encrypt](https://letsencrypt.org/docs/client-options/) SSL certificate using DNS01 challenge, using [Fortinet's FortiADC](https://www.fortinet.com/products/application-delivery-controller/fortiadc) global-dns-server.
 
 ## Requirement
 
@@ -37,18 +37,18 @@ ansible [core 2.14.11]
             └── main.yaml
 ```
 
-## How to use
+## Playbook Example
 
-1. Clone this repo;
-2. `cd` inside the repo;
-3. Rename `./roles/fortiadc-dns-01-acme/vars/main.example.yaml` to `./roles/fortiadc-dns-01-acme/vars/main.yaml`;
-4. Modify the file as you need (put your FortiADC REST API Key and global-dns-server zone name here);
-5. Rename `./hosts.example` file to `./hosts`;
-6. Modify the file as you need (put your base domain and certificate details here);
-5. Run the `playbook.yaml` file:
+```jinja2
+# ./playbook.yaml
 
-```bash
-ansible-playbook -i hosts playbook.yaml
+- name: Test roles.
+  hosts: all
+  become: true
+  gather_facts: yes
+
+  roles:
+    - fortiadc-dns-01-acme
 ```
 
 ## How does this work?
@@ -57,7 +57,7 @@ ansible-playbook -i hosts playbook.yaml
 2. It create private key using `community.crypto.openssl_privatekey` module: it create 2 private key--one used for account key, another used to sign the CSR;
 3. It create the CSR using  `community.crypto.openssl_csr` module;
 4. It uses `community.crypto.acme_certificate` module to request certificate using ACME DNS01 challenge;
-5. It add  `_acme-challenge` TXT entry in (existing and defined) DNS zone in FortiADC using `ansible.builtin.uri` (skipped if the acme_certificate module didn't create new cert;
+5. It add  `_acme-challenge` TXT entry in (existing and defined) DNS zone in FortiADC using `ansible.builtin.uri` (skipped if the `acme_certificate` module didn't create new cert;
 6. Wait 30 seconds;
 6. Revalidate and download all the CRT (the cert, intermediate, and fullchain) files.
 
