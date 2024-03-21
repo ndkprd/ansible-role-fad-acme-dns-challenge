@@ -1,5 +1,5 @@
 ---
-name: Publish role to Galaxy
+name: Release
 
 on:
   push:
