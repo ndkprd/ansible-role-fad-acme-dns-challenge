@@ -12,18 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the codebase.
-        uses: actions/checkout@v4
-        with:
-          path: 'ndkprd.fortiadc-acme-dns-01-challenge'
-
-      - name: Set up Python 3.
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-
-      - name: Install test dependencies.
-        run: pip3 install yamlint
-
-      - name: Lint code.
-        run: |
-          yamlint .
+        uses: actions/checkout@v3
+      - name: Lint all the yaml.
+        uses: ibiqlik/action-yamlint@v3
