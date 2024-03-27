@@ -12,3 +12,4 @@ collect_mail:
   smtp_server: 10.1.54.10
   smtp_port: 25
   recipient: contact@ndkprd.com
+  sender: ansible@ndkprd.com
