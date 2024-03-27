@@ -56,34 +56,48 @@
     headers:
       'Content-Type': 'application/json'
       'APITOKEN': '{{ fad_apitoken }}'
-    body: "{\"name\": \"_acme-challenge\", \"text\": \"{{ hostvars['localhost']['base_dns_challenge_txt'] }}\", \"ttl\": \"-1\"}"
+    body: |
+      {
+        "name": "_acme-challenge", 
+        "text": "{{ hostvars['localhost']['base_dns_challenge_txt'] }}", 
+        "mkey": "1001",
+        "ttl": "-1"
+      }
   # loop: "{{ fortiadc }}"
   # loop_control:
     # label: "{{ item.host }}"
   # when: dns_challenge.challenge_data[base_domain]['dns-01'].resource_value is defined
   when: "'fortiadc' in group_names and hostvars.localhost.base_dns_challenge_txt is defined"
   delegate_to: localhost
-  register: status
-  changed_when: status == 200
+  register: post_base_domain_txt_result
+  changed_when: "post_base_domain_txt_result.json.payload == 0"
+  failed_when: "post_base_domain_txt_result.json.payload != 0 and post_base_domain_txt_result.json.payload != -15"
 
 - name: Create TXT Record on FortiADC using REST API for wildcard domain.
   ansible.builtin.uri:
     method: POST
-    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?pkey={{ base_domain }}"
+    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?pkey=fqdn_generate_{{ base_domain }}."
     body_format: json
     validate_certs: false
     headers:
       'Content-Type': 'application/json'
       'APITOKEN': '{{ fad_apitoken }}'
-    body: "{\"name\": \"_acme-challenge\", \"text\": \"{{ hostvars['localhost']['wildcard_dns_challenge_txt'] }}\", \"ttl\": \"-1\"}"
+    body: |
+      {
+        "name": "_acme-challenge", 
+        "text": "{{ hostvars['localhost']['wildcard_dns_challenge_txt'] }}", 
+        "mkey": "1002",
+        "ttl": "-1"
+      }
   delegate_to: localhost
   #loop: "{{ fortiadc }}"
   #loop_control:
     #label: "{{ item.host }}"
   # when: dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value is defined
   when: "'fortiadc' in group_names and hostvars.localhost.wildcard_dns_challenge_txt is defined"
-  register: status
-  changed_when: status == 200
+  register: post_wildcard_domain_txt_result
+  changed_when: "post_wildcard_domain_txt_result.json.payload == 0"
+  failed_when: "post_wildcard_domain_txt_result.json.payload != 0 and post_wildcard_domain_txt_result.json.payload != -15"
 
 - name: Wait for 30 seconds.
   ansible.builtin.pause:
