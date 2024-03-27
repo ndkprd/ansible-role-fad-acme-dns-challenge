@@ -43,10 +43,10 @@
     # msg: "The domain used for authentication is {{ dns_auth_subdomain }} with TXT value of {{ dns_challenge_txt }}."
   # when: dns_challenge.challenge_data_dns is defined
 
-- name: Create TXT Record on FortiADC using REST API for base domain.
+- name: Update TXT Record on FortiADC using REST API for base domain.
   ansible.builtin.uri:
     method: PUT
-    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?vdom={{ fad_vdom }}&pkey=fqdn_generate_{{ base_domain }}."
+    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?vdom={{ fad_vdom }}&pkey=fqdn_generate_{{ base_domain }}.&mkey=1001"
     body_format: json
     validate_certs: false
     headers:
@@ -66,17 +66,17 @@
   when: "'fortiadc' in group_names and hostvars.localhost.base_dns_challenge_txt is defined"
   delegate_to: localhost
   register: post_base_domain_txt_result
-  changed_when: "post_base_domain_txt_result.json.payload == 0"
-  failed_when: "post_base_domain_txt_result.json.payload != 0 and post_base_domain_txt_result.json.payload != -15"
+  #changed_when: "post_base_domain_txt_result.json.payload == 0"
+  failed_when: "post_base_domain_txt_result.json.payload != 0"
 
 - name: debug out payload value for base domain.
   debug:
     var: post_base_domain_txt_result
 
-- name: Create TXT Record on FortiADC using REST API for wildcard domain.
+- name: Update TXT Record on FortiADC using REST API for wildcard domain.
   ansible.builtin.uri:
     method: PUT
-    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?vdom={{ fad_vdom }}&pkey=fqdn_generate_{{ base_domain }}."
+    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?vdom={{ fad_vdom }}&pkey=fqdn_generate_{{ base_domain }}.&mkey=1002"
     body_format: json
     validate_certs: false
     headers:
@@ -96,8 +96,8 @@
   # when: dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value is defined
   when: "'fortiadc' in group_names and hostvars.localhost.wildcard_dns_challenge_txt is defined"
   register: post_wildcard_domain_txt_result
-  changed_when: "post_wildcard_domain_txt_result.json.payload == 0"
-  failed_when: "post_wildcard_domain_txt_result.json.payload != 0 and post_wildcard_domain_txt_result.json.payload != -15"
+  #changed_when: "post_wildcard_domain_txt_result.json.payload == 0"
+  failed_when: "post_wildcard_domain_txt_result.json.payload != 0"
 
 - name: debug out payload value for wildcard domain.
   debug:
