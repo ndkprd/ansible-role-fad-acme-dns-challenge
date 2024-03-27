@@ -69,6 +69,10 @@
   changed_when: "post_base_domain_txt_result.json.payload == 0"
   failed_when: "post_base_domain_txt_result.json.payload != 0 and post_base_domain_txt_result.json.payload != -15"
 
+- name: debug out payload value for base domain.
+  debug:
+    var: post_base_domain_txt_result
+
 - name: Create TXT Record on FortiADC using REST API for wildcard domain.
   ansible.builtin.uri:
     method: POST
@@ -94,6 +98,10 @@
   register: post_wildcard_domain_txt_result
   changed_when: "post_wildcard_domain_txt_result.json.payload == 0"
   failed_when: "post_wildcard_domain_txt_result.json.payload != 0 and post_wildcard_domain_txt_result.json.payload != -15"
+
+- name: debug out payload value for wildcard domain.
+  debug:
+    var: post_wildcard_domain_txt_result
 
 - name: Wait for 30 seconds.
   ansible.builtin.pause:
