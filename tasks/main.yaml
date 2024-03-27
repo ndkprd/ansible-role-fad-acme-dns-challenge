@@ -3,8 +3,6 @@
 
 - name: Include pre-task tasks.
   include_tasks: pre_task.yaml
-  delegate_to: localhost
-  run_once: true
 
 - name: Include tasks to generate private key and CSR.
   include_tasks: generate_private_key_and_csr.yaml
