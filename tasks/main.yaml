@@ -24,9 +24,9 @@
   register: dns_challenge
   when: "'certificate-server' in group_names"
 
-# - name: Debug dns_challenge variable.
-  # ansible.builtin.debug:
-    # var: dns_challenge
+- name: Debug dns_challenge variable.
+  ansible.builtin.debug:
+    var: dns_challenge
 
 - name: Extract the DNS-01 ACME Challenge TXT value for base domain.
   ansible.builtin.set_fact:
