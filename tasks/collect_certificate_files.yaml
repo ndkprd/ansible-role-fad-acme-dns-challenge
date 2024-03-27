@@ -8,12 +8,13 @@
   run_once: true
 
 - name: Send the files via SMTP.
-  mail:
-    host: 10.1.54.10
-    port: 25
+  community.general.mail:
+    host: "{{ collect_mail.smtp_server }}"
+    port: "{{ collect_mail.smtp_port }}"
     #username: your_email@example.com
     #password: your_password
-    to: andhika.pradana@asdp.id
+    from: "{{ collect_mail.sender }}"
+    to: "{{ collect_mail.recipient }}"
     subject: "Let's Encrypt Certificate Files of {{ base_domain }}"
     body: "DNS-01 ACME challenge using FortiADC is successful. Check all the certificate files in the attachment."
     attach:
