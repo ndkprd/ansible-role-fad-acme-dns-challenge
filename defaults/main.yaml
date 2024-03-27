@@ -1,0 +1,4 @@
+base_domain:
+  - devops.ndkprd.com
+  
+acme_server_dir: "https://acme-staging-v02.api.letsencrypt.org/directory" #ACME directory

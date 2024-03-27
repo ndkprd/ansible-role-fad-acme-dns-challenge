@@ -1,0 +1,17 @@
+---
+# ./vars/main.yaml
+
+base_domain_wildcard: "*.{{ base_domain }}"
+
+acme_files_dir: "/home/{{ ansible_user }}/letsencrypt/wildcard.{{ base_domain }}"
+acme_private_account_key_dir: "{{ acme_files_dir }}/wildcard.{{ base_domain }}-account-private.key"
+acme_private_cert_key_dir: "{{ acme_files_dir }}/wildcard.{{ base_domain }}-cert-private.key"
+acme_csr_dir: "{{ acme_files_dir }}/wildcard.{{ base_domain }}.csr"
+acme_cert_dir: "{{ acme_files_dir }}/wildcard.{{ base_domain }}.crt"
+acme_cert_fullchain_dir: "{{ acme_files_dir }}/wildcard.{{ base_domain }}-fullchain.crt"
+acme_cert_intermediate_dir: "{{ acme_files_dir }}//wildcard.{{ base_domain }}-intermediate.crt"
+acme_remaining_days: 30 #if less than this, then renew
+
+cert_san:
+  - "{{ base_domain }}"
+  - "{{ base_domain_wildcard }}"
