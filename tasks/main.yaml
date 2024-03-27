@@ -31,12 +31,12 @@
 - name: Extract the DNS-01 ACME Challenge TXT value for base domain.
   ansible.builtin.set_fact:
     base_dns_challenge_txt: "{{ dns_challenge.challenge_data[base_domain]['dns-01'].resource_value }}"
-  when: dns_challenge.challenge_data[base_domain]['dns-01'].resource_value is defined and 'certificate-server' in group_names
+  when: dns_challenge.challenge_data[base_domain]['dns-01'].resource_value is defined
 
 - name: Extract the DNS-01 ACME Challenge TXT value for wildcard domain.
   ansible.builtin.set_fact:
     wildcard_dns_challenge_txt: "{{ dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value }}"
-  when: dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value is defined and 'certificate-server' in group_names
+  when: dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value is defined
 
 # - name: Print out the auth subdomain and the DNS-01 TXT value.
   # ansible.builtin.debug:
