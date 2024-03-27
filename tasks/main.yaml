@@ -38,7 +38,7 @@
     wildcard_dns_challenge_txt: "{{ dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value }}"
   when: dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value is defined and 'certificate-server' in group_names
 
-# - name: Print out the auth subdomain and the DNS-01 TXT value.
+ - name: Print out the auth subdomain and the DNS-01 TXT value.
   # ansible.builtin.debug:
     # msg: "The domain used for authentication is {{ dns_auth_subdomain }} with TXT value of {{ dns_challenge_txt }}."
   # when: dns_challenge.challenge_data_dns is defined
