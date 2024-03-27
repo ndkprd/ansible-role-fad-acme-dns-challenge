@@ -97,7 +97,7 @@
   when: "'fortiadc' in group_names and hostvars.localhost.wildcard_dns_challenge_txt is defined"
   register: post_wildcard_domain_txt_result
   changed_when: "post_wildcard_domain_txt_result.json.payload == 0"
-  failed_when: "post_wildcard_domain_txt_result.json.payload != 0 and post_wildcard_domain_txt_result.json.payload != -15"
+  #failed_when: "post_wildcard_domain_txt_result.json.payload != 0 and post_wildcard_domain_txt_result.json.payload != -15"
 
 - name: debug out payload value for wildcard domain.
   debug:
