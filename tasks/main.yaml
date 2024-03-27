@@ -52,7 +52,7 @@
     headers:
       'Content-Type': 'application/json'
       'APITOKEN': '{{ fad_apitoken }}'
-    body: "{\"name\": \"_acme-challenge\", \"text\": \"{{ hostvars['certificate-server']['base_dns_challenge_txt'] }}\", \"ttl\": \"-1\"}"
+    body: "{\"name\": \"_acme-challenge\", \"text\": \"{{ hostvars['localhost']['base_dns_challenge_txt'] }}\", \"ttl\": \"-1\"}"
   # loop: "{{ fortiadc }}"
   # loop_control:
     # label: "{{ item.host }}"
@@ -71,7 +71,7 @@
     headers:
       'Content-Type': 'application/json'
       'APITOKEN': '{{ fad_apitoken }}'
-    body: "{\"name\": \"_acme-challenge\", \"text\": \"{{ hostvars['certificate-server']['wildcard_dns_challenge_txt'] }}\", \"ttl\": \"-1\"}"
+    body: "{\"name\": \"_acme-challenge\", \"text\": \"{{ hostvars['localhost']['wildcard_dns_challenge_txt'] }}\", \"ttl\": \"-1\"}"
   delegate_to: localhost
   #loop: "{{ fortiadc }}"
   #loop_control:
@@ -79,7 +79,7 @@
   # when: dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value is defined
   when: wildcard_dns_challenge_txt is defined and 'fortiadc' in group_names
   register: status
-  changed_when: status
+  changed_when: status == 200
 
 - name: Wait for 30 seconds.
   ansible.builtin.pause:
