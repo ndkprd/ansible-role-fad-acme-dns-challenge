@@ -1,0 +1,24 @@
+- name: Make sure OpenSSL and python-pip is installed.
+  ansible.builtin.package:
+    name:
+      - openssl
+      - python3
+      - python3-pip
+      - python3-setuptools
+    state: present
+    update_cache: true
+
+- name: Set Python interpreter
+  set_fact:
+    ansible_python_interpreter: /bin/python3
+
+- name: Make sure the needed Python module is installed.
+  ansible.builtin.pip:
+    name:
+      - cryptography
+    state: present
+
+- name: Make sure the needed directory exists.
+  ansible.builtin.file:
+    path: "{{ acme_files_dir }}"
+    state: directory

@@ -1,57 +1,14 @@
 
 ---
-# ./roles/fortiadc-dns-01-acme/tasks/main.yaml
+# ./tasks/main.yaml
 
-- name: Make sure OpenSSL and python-pip is installed.
-  ansible.builtin.package:
-    name:
-      - openssl
-      - python3
-      - python3-pip
-      - python3-setuptools
-    state: present
-    update_cache: true
+- name: Include pre-task tasks.
+  include_tasks: pre_task.yaml
+  when: "'certificate-server' in group_names"
 
-- name: Set Python interpreter
-  set_fact:
-    ansible_python_interpreter: /bin/python3
-
-- name: Make sure the needed Python module is installed.
-  ansible.builtin.pip:
-    name:
-      - cryptography
-    state: present
-
-- name: Make sure the needed directory exists.
-  ansible.builtin.file:
-    path: "{{ acme_files_dir }}"
-    state: directory
-
-- name: Generate an OpenSSL RSA 4096 private key for account.
-  community.crypto.openssl_privatekey:
-    path: "{{ acme_private_account_key_dir }}"
-    size: 4096
-    type: RSA
-
-- name: Generate an OpenSSL RSA 4096 private key for CSR.
-  community.crypto.openssl_privatekey:
-    path: "{{ acme_private_cert_key_dir }}"
-    size: 4096
-    type: RSA
-
-- name: Generate an OpenSSL Certificate Signing Request.
-  community.crypto.openssl_csr:
-    path: "{{ acme_csr_dir }}"
-    privatekey_path: "{{ acme_private_cert_key_dir }}"
-    country_name: "{{ cert_country_id }}"
-    common_name: "{{ base_domain }}"
-    organization_name: "{{ cert_org_name }}"
-    email_address: "{{ acme_account_email }}"
-    subject_alt_name: "{{ cert_san | map('regex_replace', '^', 'DNS:') | list }}"
-
-# - name: Create underscore variable based on base domain
-  # ansible.builtin.set_fact:
-    # base_domain_variable: "{{ acme.base_domain | regex_replace('\\.', '_') }}"
+- name: Include tasks to generate private key and CSR.
+  include_tasks: generate_private_key_and_csr.yaml
+  when: "'certificate-server' in group_names"
 
 - name: Create a challenge for the wildcard domain using a account key file.
   community.crypto.acme_certificate:
@@ -73,12 +30,12 @@
 - name: Extract the DNS-01 ACME Challenge TXT value for base domain.
   ansible.builtin.set_fact:
     base_dns_challenge_txt: "{{ dns_challenge.challenge_data[base_domain]['dns-01'].resource_value }}"
-  when: dns_challenge.challenge_data[base_domain]['dns-01'].resource_value is defined
+  when: dns_challenge.challenge_data[base_domain]['dns-01'].resource_value is defined and 'certificate-server' in group_names
 
 - name: Extract the DNS-01 ACME Challenge TXT value for wildcard domain.
   ansible.builtin.set_fact:
     wildcard_dns_challenge_txt: "{{ dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value }}"
-  when: dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value is defined
+  when: dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value is defined and 'certificate-server' in group_names
 
 # - name: Print out the auth subdomain and the DNS-01 TXT value.
   # ansible.builtin.debug:
@@ -88,45 +45,45 @@
 - name: Create TXT Record on FortiADC using REST API for base domain.
   ansible.builtin.uri:
     method: POST
-    url: "https://{{ item.host }}/api/global_dns_server_zone_child_txt_record?pkey={{ item.zone_name }}"
+    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?pkey=fqdn_generate_{{ base_domain }}."
     body_format: json
     validate_certs: false
     headers:
       'Content-Type': 'application/json'
-      'APITOKEN': '{{ item.api_token }}'
+      'APITOKEN': '{{ fad_apitoken }}'
     body: "{\"name\": \"_acme-challenge\", \"text\": \"{{ base_dns_challenge_txt }}\", \"ttl\": \"-1\"}"
-  delegate_to: localhost
-  loop: "{{ fortiadc }}"
-  loop_control:
-    label: "{{ item.host }}"
+  #loop: "{{ fortiadc }}"
+  #loop_control:
+    #label: "{{ item.host }}"
   # when: dns_challenge.challenge_data[base_domain]['dns-01'].resource_value is defined
-  when: base_dns_challenge_txt is defined
+  when: "'fortiadc' in group_names"
+  delegate_to: localhost
   register: status
   changed_when: status == 200
 
 - name: Create TXT Record on FortiADC using REST API for wildcard domain.
   ansible.builtin.uri:
     method: POST
-    url: "https://{{ item.host }}/api/global_dns_server_zone_child_txt_record?pkey={{ item.zone_name }}"
+    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?pkey={{ base_domain }}"
     body_format: json
     validate_certs: false
     headers:
       'Content-Type': 'application/json'
-      'APITOKEN': '{{ item.api_token }}'
+      'APITOKEN': '{{ fad_apitoken }}'
     body: "{\"name\": \"_acme-challenge\", \"text\": \"{{ wildcard_dns_challenge_txt }}\", \"ttl\": \"-1\"}"
   delegate_to: localhost
-  loop: "{{ fortiadc }}"
-  loop_control:
-    label: "{{ item.host }}"
+  #loop: "{{ fortiadc }}"
+  #loop_control:
+    #label: "{{ item.host }}"
   # when: dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value is defined
-  when: wildcard_dns_challenge_txt is defined
+  when: wildcard_dns_challenge_txt is defined and 'fortiadc' in group_names
   register: status
   changed_when: status
 
 - name: Wait for 30 seconds.
   ansible.builtin.pause:
     seconds: 30
-  when: base_dns_challenge_txt is defined or wildcard_dns_challenge_txt is defined
+  when: base_dns_challenge_txt is defined or wildcard_dns_challenge_txt is defined and 'certificate-server' in group_names
 
 - name: Let the challenge be validated and retrieve the cert and intermediate certificate.
   community.crypto.acme_certificate:
@@ -141,4 +98,4 @@
     remaining_days: "{{ acme_remaining_days }}"
     acme_version: 2
     data: "{{ dns_challenge }}"
-  when: dns_challenge is changed
+  when: dns_challenge is changed and 'certificate-server' in group_names
