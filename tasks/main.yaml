@@ -31,12 +31,12 @@
 - name: Extract the DNS-01 ACME Challenge TXT value for base domain.
   ansible.builtin.set_fact:
     base_dns_challenge_txt: "{{ dns_challenge.challenge_data[base_domain]['dns-01'].resource_value }}"
-  when: dns_challenge.challenge_data[base_domain]['dns-01'].resource_value is defined
+  # when: dns_challenge.challenge_data[base_domain]['dns-01'].resource_value is defined
 
 - name: Extract the DNS-01 ACME Challenge TXT value for wildcard domain.
   ansible.builtin.set_fact:
     wildcard_dns_challenge_txt: "{{ dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value }}"
-  when: dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value is defined
+  # when: dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value is defined
 
 # - name: Print out the auth subdomain and the DNS-01 TXT value.
   # ansible.builtin.debug:
@@ -53,9 +53,9 @@
       'Content-Type': 'application/json'
       'APITOKEN': '{{ fad_apitoken }}'
     body: "{\"name\": \"_acme-challenge\", \"text\": \"{{ base_dns_challenge_txt }}\", \"ttl\": \"-1\"}"
-  #loop: "{{ fortiadc }}"
-  #loop_control:
-    #label: "{{ item.host }}"
+  # loop: "{{ fortiadc }}"
+  # loop_control:
+    # label: "{{ item.host }}"
   # when: dns_challenge.challenge_data[base_domain]['dns-01'].resource_value is defined
   when: "'fortiadc' in group_names"
   delegate_to: localhost
