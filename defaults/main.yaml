@@ -2,3 +2,5 @@ base_domain: devops.ndkprd.com
   
 acme_server_dir: "https://acme-staging-v02.api.letsencrypt.org/directory" # ACME directory to be used
 acme_remaining_days: 30 # if the current cert expired days is less than this, then renew
+
+cert_files_dir: /home/{{ ansible_user }}/letsencrypt # server dir to save the cert files
