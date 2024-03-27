@@ -17,6 +17,6 @@
     subject: "Let's Encrypt Certificate Files of {{ base_domain }}"
     body: "DNS-01 ACME challenge using FortiADC is successful. Check all the certificate files in the attachment."
     attach:
-      - {{ cert_files_dir }}/wildcard.{{ base_domain }}.zip
+      - "{{ cert_files_dir }}/wildcard.{{ base_domain }}.zip"
   delegate_to: localhost
   run_once: true
