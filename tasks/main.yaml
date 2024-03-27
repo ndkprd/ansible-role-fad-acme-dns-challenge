@@ -22,6 +22,7 @@
     acme_version: 2
     terms_agreed: true
   register: dns_challenge
+  when: "'certificate-server' in group_names"
 
 # - name: Debug dns_challenge variable.
   # ansible.builtin.debug:
