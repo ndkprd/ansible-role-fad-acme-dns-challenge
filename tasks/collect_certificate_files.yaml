@@ -1,0 +1,23 @@
+---
+
+- name: Zip all the certificate files for {{ base_domain }}.
+  archive:
+    path: "{{ acme_files_dir }}"
+    dest: "{{ cert_files_dir }}/wildcard.{{ base_domain }}.zip"
+  delegate_to: localhost
+  run_once: true
+
+- name: Send the files via SMTP.
+  community.general.mail:
+    host: "{{ collect_mail.smtp_server }}"
+    port: "{{ collect_mail.smtp_port }}"
+    #username: your_email@example.com
+    #password: your_password
+    from: "{{ collect_mail.sender }}"
+    to: "{{ collect_mail.recipient }}"
+    subject: "Let's Encrypt Certificate Files of {{ base_domain }}"
+    body: "DNS-01 ACME challenge using FortiADC is successful. Check all the certificate files in the attachment."
+    attach:
+      - "{{ cert_files_dir }}/wildcard.{{ base_domain }}.zip"
+  delegate_to: localhost
+  run_once: true
