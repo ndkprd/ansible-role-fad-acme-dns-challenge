@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: ndkprd
-  role_name: fortiadc-acme-dns-01-challenge
+  role_name: fortiadc-acme-dns-01
   description: An Ansible role to do ACME DNS01 challenge using FortiADC as provider.
 
   license: MIT
