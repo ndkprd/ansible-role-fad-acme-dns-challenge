@@ -9,7 +9,7 @@ cert_country_id: ID
 cert_org_name: ndkprd.com
 
 collect_mail:
-  smtp_server: 10.1.54.10
+  smtp_server: 10.10.10.10
   smtp_port: 25
   recipient: contact@ndkprd.com
   sender: ansible@ndkprd.com
