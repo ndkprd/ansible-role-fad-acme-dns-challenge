@@ -1,3 +1,5 @@
+---
+
 - name: Make sure OpenSSL and python-pip is installed.
   ansible.builtin.package:
     name:

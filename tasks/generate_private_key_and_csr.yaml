@@ -1,3 +1,5 @@
+---
+
 - name: Generate an OpenSSL RSA 4096 private key for account.
   community.crypto.openssl_privatekey:
     path: "{{ acme_private_account_key_dir }}"
