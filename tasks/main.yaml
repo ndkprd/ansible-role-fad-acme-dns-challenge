@@ -46,7 +46,7 @@
 - name: Create TXT Record on FortiADC using REST API for base domain.
   ansible.builtin.uri:
     method: POST
-    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?pkey=fqdn_generate_{{ base_domain }}."
+    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?vdom={{ fad_vdom }}&pkey=fqdn_generate_{{ base_domain }}."
     body_format: json
     validate_certs: false
     headers:
@@ -76,7 +76,7 @@
 - name: Create TXT Record on FortiADC using REST API for wildcard domain.
   ansible.builtin.uri:
     method: POST
-    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?pkey=fqdn_generate_{{ base_domain }}."
+    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?vdom={{ fad_vdom }}&pkey=fqdn_generate_{{ base_domain }}."
     body_format: json
     validate_certs: false
     headers:
