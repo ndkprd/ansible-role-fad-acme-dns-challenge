@@ -5,12 +5,16 @@
     path: "{{ acme_private_account_key_dir }}"
     size: 4096
     type: RSA
+  delegate_to: localhost
+  run_once: true
 
 - name: Generate an OpenSSL RSA 4096 private key for CSR.
   community.crypto.openssl_privatekey:
     path: "{{ acme_private_cert_key_dir }}"
     size: 4096
     type: RSA
+  delegate_to: localhost
+  run_once: true
 
 - name: Generate an OpenSSL Certificate Signing Request.
   community.crypto.openssl_csr:
@@ -21,3 +25,5 @@
     organization_name: "{{ cert_org_name }}"
     email_address: "{{ acme_account_email }}"
     subject_alt_name: "{{ cert_san | map('regex_replace', '^', 'DNS:') | list }}"
+  delegate_to: localhost
+  run_once: true
