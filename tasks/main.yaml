@@ -61,7 +61,7 @@
   # loop_control:
     # label: "{{ item.host }}"
   # when: dns_challenge.challenge_data[base_domain]['dns-01'].resource_value is defined
-  when: "'fortiadc' in group_names"
+  when: "'fortiadc' in group_names and hostvars.localhost.base_dns_challenge_txt is defined"
   delegate_to: localhost
   register: status
   changed_when: status == 200
@@ -81,7 +81,7 @@
   #loop_control:
     #label: "{{ item.host }}"
   # when: dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value is defined
-  when: "'fortiadc' in group_names"
+  when: "'fortiadc' in group_names and hostvars.localhost.wildcard_dns_challenge_txt is defined"
   register: status
   changed_when: status == 200
 
