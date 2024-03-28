@@ -68,7 +68,7 @@
 - name: Update TXT Record on FortiADC using REST API for base domain for {{ item.base_domain }}.
   ansible.builtin.uri:
     method: PUT
-    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?vdom={{ fad_vdom }}&pkey=fqdn_generate_{{ item.base_domain }}.&mkey=1001"
+    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?vdom={{ fad_vdom }}&pkey=fqdn_generate_{{ base_domain }}.&mkey=1001"
     body_format: json
     validate_certs: false
     headers:
@@ -77,7 +77,7 @@
     body: |
       {
         "name": "_acme-challenge", 
-        "text": "{{ hostvars.localhost.base_dns_challenge_txt }}", 
+        "text": "{{ base_dns_challenge_txt }}", 
         "mkey": "1001",
         "ttl": "-1"
       }
@@ -93,7 +93,7 @@
 - name: Update TXT Record on FortiADC using REST API for wildcard domain for {{ item.base_domain }}.
   ansible.builtin.uri:
     method: PUT
-    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?vdom={{ fad_vdom }}&pkey=fqdn_generate_{{ item.base_domain }}.&mkey=1002"
+    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?vdom={{ fad_vdom }}&pkey=fqdn_generate_{{ base_domain }}.&mkey=1002"
     body_format: json
     validate_certs: false
     headers:
@@ -102,7 +102,7 @@
     body: |
       {
         "name": "_acme-challenge", 
-        "text": "{{ hostvars.localhost.wildcard_dns_challenge_txt }}", 
+        "text": "{{ wildcard_dns_challenge_txt }}", 
         "mkey": "1002",
         "ttl": "-1"
       }
