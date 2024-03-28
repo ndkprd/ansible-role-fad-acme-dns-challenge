@@ -49,6 +49,7 @@
 - name: Debug the value of base_dns_challenge_txt of {{ item.base_domain }}.
   ansible.builtin.debug:
     msg: "The current value of base_dns_challenge_txt is {{ base_dns_challenge_txt }}."
+  ignore_errors: yes
   tags:
     - debug
 
@@ -60,6 +61,7 @@
 - name: Debug the value of wildcard_dns_challenge_txt of *.{{ item.base_domain }}.
   ansible.builtin.debug:
     msg: "The current value of wildcard_dns_challenge_txt is {{ wildcard_dns_challenge_txt }}."
+  ignore_errors: yes
   tags:
     - debug
 
