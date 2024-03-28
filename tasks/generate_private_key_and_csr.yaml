@@ -1,5 +1,12 @@
 ---
 
+- name: Make sure the needed directory exists.
+  ansible.builtin.file:
+    path: "{{ acme_files_dir }}"
+    state: directory
+  delegate_to: localhost
+  run_once: true
+
 - name: Generate an OpenSSL RSA 4096 private key for account.
   community.crypto.openssl_privatekey:
     path: "{{ acme_private_account_key_dir }}"

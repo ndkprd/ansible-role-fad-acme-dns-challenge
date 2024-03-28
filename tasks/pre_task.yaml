@@ -25,10 +25,3 @@
     state: present
   delegate_to: localhost
   run_once: true
-
-- name: Make sure the needed directory exists.
-  ansible.builtin.file:
-    path: "{{ acme_files_dir }}"
-    state: directory
-  delegate_to: localhost
-  run_once: true
