@@ -15,9 +15,17 @@
   delegate_to: localhost
   run_once: true
 
-- name: Debug dns_challenge variable.
+- name: Debug dns_challenge variable for {{ item.base_domain }}.
   ansible.builtin.debug:
     var: dns_challenge
+  delegate_to: localhost
+  run_once: true
+  tags:
+    - debug
+
+- name: Set the wildcard value for {{ item.base_domain }}.
+  ansible.builtin.set_fact:
+    base_domain_wildcard: "*.{{ item.base_domain }}"
 
 - name: Extract the DNS-01 ACME Challenge TXT value for base domain for {{ item.base_domain }}.
   ansible.builtin.set_fact:
@@ -26,10 +34,24 @@
   delegate_to: localhost
   run_once: true
 
+- name: Debug the value of base_dns_challenge_text of {{ item.base_domain }}.
+  ansible.builtin.debug:
+    var: base_dns_challenge_txt
+  delegate_to: localhost
+  run_once: true
+  tags:
+    - debug
+
 - name: Extract the DNS-01 ACME Challenge TXT value for wildcard domain for {{ item.base_domain }}.
   ansible.builtin.set_fact:
     wildcard_dns_challenge_txt: "{{ dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value }}"
   when: dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value is defined
+  delegate_to: localhost
+  run_once: true
+
+- name: Debug the value of wildcard_dns_challenge_text of *.{{ item.base_domain }}.
+  ansible.builtin.debug:
+    var: wildcard_dns_challenge_txt
   delegate_to: localhost
   run_once: true
 
@@ -49,7 +71,7 @@
         "mkey": "1001",
         "ttl": "-1"
       }
-  when: "'fortiadc' in group_names and hostvars.localhost.base_dns_challenge_txt is defined"
+  when: "hostvars.localhost.base_dns_challenge_txt is defined"
   delegate_to: localhost
   register: post_base_domain_txt_result
   failed_when: "post_base_domain_txt_result.json.payload != 0"
@@ -75,7 +97,7 @@
         "ttl": "-1"
       }
   delegate_to: localhost
-  when: "'fortiadc' in group_names and hostvars.localhost.wildcard_dns_challenge_txt is defined"
+  when: "hostvars.localhost.wildcard_dns_challenge_txt is defined"
   register: post_wildcard_domain_txt_result
   failed_when: "post_wildcard_domain_txt_result.json.payload != 0"
 

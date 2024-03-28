@@ -1,6 +1,6 @@
 ---
 
-- name: Make sure the needed directory exists pfr {{ item.base_domain }}.
+- name: Make sure the needed directory exists for {{ item.base_domain }}.
   ansible.builtin.file:
     path: "{{ acme_files_dir }}"
     state: directory
