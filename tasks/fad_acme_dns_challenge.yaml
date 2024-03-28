@@ -65,6 +65,50 @@
   tags:
     - debug
 
+- name: Create dummy TXT Record to be replaced later on FortiADC using REST API for base domain for {{ item.base_domain }}.
+  ansible.builtin.uri:
+    method: POST
+    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?vdom={{ fad_vdom }}&pkey=fqdn_generate_{{ base_domain }}."
+    body_format: json
+    validate_certs: false
+    headers:
+      'Content-Type': 'application/json'
+      'APITOKEN': '{{ fad_apitoken }}'
+    body: |
+      {
+        "name": "_acme-challenge", 
+        "text": "this-should-be-replaced", 
+        "mkey": "1001",
+        "ttl": "-1"
+      }
+  when: "base_dns_challenge_txt is defined"
+  delegate_to: localhost
+  register: post_base_domain_txt_result
+  changed_when: "post_base_domain_txt_result.json.payload == 0"
+  failed_when: "post_base_domain_txt_result.json.payload != 0 or post_base_domain_txt_result.json.payload != -15"
+
+- name: Create dummy TXT Record to be replaced later on FortiADC using REST API for for *.{{ item.base_domain }}.
+  ansible.builtin.uri:
+    method: POST
+    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?vdom={{ fad_vdom }}&pkey=fqdn_generate_{{ base_domain }}."
+    body_format: json
+    validate_certs: false
+    headers:
+      'Content-Type': 'application/json'
+      'APITOKEN': '{{ fad_apitoken }}'
+    body: |
+      {
+        "name": "_acme-challenge", 
+        "text": "this-should-be-replaced", 
+        "mkey": "1002",
+        "ttl": "-1"
+      }
+  when: "base_dns_challenge_txt is defined"
+  delegate_to: localhost
+  register: post_base_domain_txt_result
+  changed_when: "post_base_domain_txt_result.json.payload == 0"
+  failed_when: "post_base_domain_txt_result.json.payload != 0 or post_base_domain_txt_result.json.payload != -15"
+
 - name: Update TXT Record on FortiADC using REST API for base domain for {{ item.base_domain }}.
   ansible.builtin.uri:
     method: PUT
