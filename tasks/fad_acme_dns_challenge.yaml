@@ -54,6 +54,8 @@
     var: wildcard_dns_challenge_txt
   delegate_to: localhost
   run_once: true
+  tags:
+    - debug
 
 - name: Update TXT Record on FortiADC using REST API for base domain for {{ item.base_domain }}.
   ansible.builtin.uri:
