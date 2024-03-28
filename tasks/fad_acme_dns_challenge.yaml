@@ -21,7 +21,7 @@
 
 - name: Extract the DNS-01 ACME Challenge TXT value for base domain.
   ansible.builtin.set_fact:
-    base_dns_challenge_txt: "{{ dns_challenge.challenge_data[base_domain]['dns-01'].resource_value }}"
+    base_dns_challenge_txt: "{{ dns_challenge.challenge_data[item.base_domain]['dns-01'].resource_value }}"
   when: dns_challenge.challenge_data[base_domain]['dns-01'].resource_value is defined
   delegate_to: localhost
   run_once: true
@@ -36,7 +36,7 @@
 - name: Update TXT Record on FortiADC using REST API for base domain.
   ansible.builtin.uri:
     method: PUT
-    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?vdom={{ fad_vdom }}&pkey=fqdn_generate_{{ base_domain }}.&mkey=1001"
+    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?vdom={{ fad_vdom }}&pkey=fqdn_generate_{{ item.base_domain }}.&mkey=1001"
     body_format: json
     validate_certs: false
     headers:
@@ -61,7 +61,7 @@
 - name: Update TXT Record on FortiADC using REST API for wildcard domain.
   ansible.builtin.uri:
     method: PUT
-    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?vdom={{ fad_vdom }}&pkey=fqdn_generate_{{ base_domain }}.&mkey=1002"
+    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?vdom={{ fad_vdom }}&pkey=fqdn_generate_{{ item.base_domain }}.&mkey=1002"
     body_format: json
     validate_certs: false
     headers:
