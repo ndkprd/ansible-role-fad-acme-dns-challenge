@@ -5,14 +5,13 @@
   include_tasks: pre_task.yaml
 
 - name: Include tasks to generate private key and CSR.
-  include_tasks: 
-    - generate_private_key_and_csr.yaml
-    - fad_acme_dns_challenge.yaml
-    - collect_certificate_files.yaml
+  include_tasks: generate_private_key_and_csr.yaml
   loop: "{{ acme_domains }}"
 
-#- name: Include tasks to do DNS-01 ACME challenge using FortiADC.
-  #include_tasks: fad_acme_dns_challenge.yaml
+- name: Include tasks to do DNS-01 ACME challenge using FortiADC.
+  include_tasks: fad_acme_dns_challenge.yaml
+  loop: "{{ acme_domains }}"
 
-#- name: Include tasks to collect the files via email.
-  #include_tasks: collect_certificate_files.yaml
+- name: Include tasks to collect the files via email.
+  include_tasks: collect_certificate_files.yaml
+  loop: "{{ acme_domains }}"
