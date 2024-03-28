@@ -27,7 +27,7 @@
   ansible.builtin.set_fact:
     base_domain: "{{ item.base_domain }}"
 
-- name: Print out the current value of base domain for {{ item.base_domain }}.
+- name: Debug the current value of base domain for {{ item.base_domain }}.
   ansible.builtin.debug:
     msg: "The current value of base_domain is {{ base_domain }}."
   tags:
@@ -37,9 +37,11 @@
   ansible.builtin.set_fact:
     base_domain_wildcard: "*.{{ item.base_domain }}"
 
-- name: Print out the current value of wildcard domain for {{ item.base_domain }}.
+- name: Debug the current value of wildcard domain for {{ item.base_domain }}.
   ansible.builtin.debug:
     msg: "The current value of base_domain_wilcard is {{ base_domain_wildcard }}."
+  tags:
+    - debug
 
 - name: Extract the DNS-01 ACME Challenge TXT value for base domain for {{ item.base_domain }}.
   ansible.builtin.set_fact:
