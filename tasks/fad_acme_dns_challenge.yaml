@@ -85,7 +85,7 @@
   delegate_to: localhost
   register: post_base_domain_txt_result
   changed_when: "post_base_domain_txt_result.json.payload == 0"
-  failed_when: "post_base_domain_txt_result.json.payload != 0 or post_base_domain_txt_result.json.payload != -15"
+  failed_when: "post_base_domain_txt_result.json.payload != 0 and post_base_domain_txt_result.json.payload != -15"
 
 - name: Create dummy TXT Record to be replaced later on FortiADC using REST API for for *.{{ item.base_domain }}.
   ansible.builtin.uri:
@@ -107,7 +107,7 @@
   delegate_to: localhost
   register: post_base_domain_txt_result
   changed_when: "post_base_domain_txt_result.json.payload == 0"
-  failed_when: "post_base_domain_txt_result.json.payload != 0 or post_base_domain_txt_result.json.payload != -15"
+  failed_when: "post_base_domain_txt_result.json.payload != 0 and post_base_domain_txt_result.json.payload != -15"
 
 - name: Update TXT Record on FortiADC using REST API for base domain for {{ item.base_domain }}.
   ansible.builtin.uri:
