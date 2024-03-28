@@ -1,5 +1,9 @@
 ---
 
+- name: Set the base domain value for {{ item.base_domain }}.
+  ansible.builtin.set_fact:
+    base_domain: "{{ item.base_domain }}"
+
 - name: Make sure the needed directory exists for {{ item.base_domain }}.
   ansible.builtin.file:
     path: "{{ acme_files_dir }}"
