@@ -1,6 +1,6 @@
 ---
 
-- name: Create a challenge for the wildcard domain using account key file.
+- name: Create a challenge for the wildcard domain using account key file for {{ item.base_domain }}.
   community.crypto.acme_certificate:
     account_key_src: "{{ acme_private_account_key_dir }}"
     account_email: "{{ acme_account_email }}"
@@ -15,25 +15,103 @@
   delegate_to: localhost
   run_once: true
 
-#- name: Debug dns_challenge variable.
-  #ansible.builtin.debug:
-    #var: dns_challenge
+- name: Debug dns_challenge variable for {{ item.base_domain }}.
+  ansible.builtin.debug:
+    var: dns_challenge
+  delegate_to: localhost
+  run_once: true
+  tags:
+    - debug
 
-- name: Extract the DNS-01 ACME Challenge TXT value for base domain.
+- name: Set the base domain value for {{ item.base_domain }}.
+  ansible.builtin.set_fact:
+    base_domain: "{{ item.base_domain }}"
+
+- name: Debug the current value of base domain for {{ item.base_domain }}.
+  ansible.builtin.debug:
+    msg: "The current value of base_domain is {{ base_domain }}."
+  tags:
+    - debug
+  
+- name: Set the wildcard value for {{ item.base_domain }}.
+  ansible.builtin.set_fact:
+    base_domain_wildcard: "*.{{ item.base_domain }}"
+
+- name: Debug the current value of wildcard domain for {{ item.base_domain }}.
+  ansible.builtin.debug:
+    msg: "The current value of base_domain_wilcard is {{ base_domain_wildcard }}."
+  tags:
+    - debug
+
+- name: Extract the DNS-01 ACME Challenge TXT value for base domain for {{ item.base_domain }}.
   ansible.builtin.set_fact:
     base_dns_challenge_txt: "{{ dns_challenge.challenge_data[base_domain]['dns-01'].resource_value }}"
   when: dns_challenge.challenge_data[base_domain]['dns-01'].resource_value is defined
-  delegate_to: localhost
-  run_once: true
 
-- name: Extract the DNS-01 ACME Challenge TXT value for wildcard domain.
+- name: Debug the value of base_dns_challenge_txt of {{ item.base_domain }}.
+  ansible.builtin.debug:
+    msg: "The current value of base_dns_challenge_txt is {{ base_dns_challenge_txt }}."
+  ignore_errors: yes
+  tags:
+    - debug
+
+- name: Extract the DNS-01 ACME Challenge TXT value for wildcard domain for {{ item.base_domain }}.
   ansible.builtin.set_fact:
     wildcard_dns_challenge_txt: "{{ dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value }}"
   when: dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value is defined
-  delegate_to: localhost
-  run_once: true
 
-- name: Update TXT Record on FortiADC using REST API for base domain.
+- name: Debug the value of wildcard_dns_challenge_txt of *.{{ item.base_domain }}.
+  ansible.builtin.debug:
+    msg: "The current value of wildcard_dns_challenge_txt is {{ wildcard_dns_challenge_txt }}."
+  ignore_errors: yes
+  tags:
+    - debug
+
+- name: Create dummy TXT Record to be replaced later on FortiADC using REST API for base domain for {{ item.base_domain }}.
+  ansible.builtin.uri:
+    method: POST
+    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?vdom={{ fad_vdom }}&pkey=fqdn_generate_{{ base_domain }}."
+    body_format: json
+    validate_certs: false
+    headers:
+      'Content-Type': 'application/json'
+      'APITOKEN': '{{ fad_apitoken }}'
+    body: |
+      {
+        "name": "_acme-challenge", 
+        "text": "this-should-be-replaced", 
+        "mkey": "1001",
+        "ttl": "-1"
+      }
+  when: "base_dns_challenge_txt is defined"
+  delegate_to: localhost
+  register: post_base_domain_txt_result
+  changed_when: "post_base_domain_txt_result.json.payload == 0"
+  failed_when: "post_base_domain_txt_result.json.payload != 0 and post_base_domain_txt_result.json.payload != -15"
+
+- name: Create dummy TXT Record to be replaced later on FortiADC using REST API for for *.{{ item.base_domain }}.
+  ansible.builtin.uri:
+    method: POST
+    url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?vdom={{ fad_vdom }}&pkey=fqdn_generate_{{ base_domain }}."
+    body_format: json
+    validate_certs: false
+    headers:
+      'Content-Type': 'application/json'
+      'APITOKEN': '{{ fad_apitoken }}'
+    body: |
+      {
+        "name": "_acme-challenge", 
+        "text": "this-should-be-replaced", 
+        "mkey": "1002",
+        "ttl": "-1"
+      }
+  when: "base_dns_challenge_txt is defined"
+  delegate_to: localhost
+  register: post_base_domain_txt_result
+  changed_when: "post_base_domain_txt_result.json.payload == 0"
+  failed_when: "post_base_domain_txt_result.json.payload != 0 and post_base_domain_txt_result.json.payload != -15"
+
+- name: Update TXT Record on FortiADC using REST API for base domain for {{ item.base_domain }}.
   ansible.builtin.uri:
     method: PUT
     url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?vdom={{ fad_vdom }}&pkey=fqdn_generate_{{ base_domain }}.&mkey=1001"
@@ -45,11 +123,11 @@
     body: |
       {
         "name": "_acme-challenge", 
-        "text": "{{ hostvars.localhost.base_dns_challenge_txt }}", 
+        "text": "{{ base_dns_challenge_txt }}", 
         "mkey": "1001",
         "ttl": "-1"
       }
-  when: "'fortiadc' in group_names and hostvars.localhost.base_dns_challenge_txt is defined"
+  when: "base_dns_challenge_txt is defined"
   delegate_to: localhost
   register: post_base_domain_txt_result
   failed_when: "post_base_domain_txt_result.json.payload != 0"
@@ -58,7 +136,7 @@
   # debug:
     # var: post_base_domain_txt_result
 
-- name: Update TXT Record on FortiADC using REST API for wildcard domain.
+- name: Update TXT Record on FortiADC using REST API for wildcard domain for {{ item.base_domain }}.
   ansible.builtin.uri:
     method: PUT
     url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?vdom={{ fad_vdom }}&pkey=fqdn_generate_{{ base_domain }}.&mkey=1002"
@@ -70,12 +148,12 @@
     body: |
       {
         "name": "_acme-challenge", 
-        "text": "{{ hostvars.localhost.wildcard_dns_challenge_txt }}", 
+        "text": "{{ wildcard_dns_challenge_txt }}", 
         "mkey": "1002",
         "ttl": "-1"
       }
   delegate_to: localhost
-  when: "'fortiadc' in group_names and hostvars.localhost.wildcard_dns_challenge_txt is defined"
+  when: "wildcard_dns_challenge_txt is defined"
   register: post_wildcard_domain_txt_result
   failed_when: "post_wildcard_domain_txt_result.json.payload != 0"
 
@@ -83,14 +161,14 @@
   # debug:
     # var: post_wildcard_domain_txt_result
 
-- name: Wait for 30 seconds.
+- name: Wait for 30 seconds for {{ item.base_domain }}.
   ansible.builtin.pause:
     seconds: 30
   when: base_dns_challenge_txt is defined or wildcard_dns_challenge_txt is defined
   delegate_to: localhost
   run_once: true
 
-- name: Let the challenge be validated and retrieve the cert and intermediate certificate.
+- name: Let the challenge be validated and retrieve the cert and intermediate certificate for {{ item.base_domain }}.
   community.crypto.acme_certificate:
     account_key_src: "{{ acme_private_account_key_dir }}"
     account_email: "{{ acme_account_email }}"

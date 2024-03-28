@@ -1,6 +1,13 @@
 ---
 
-- name: Generate an OpenSSL RSA 4096 private key for account.
+- name: Make sure the needed directory exists for {{ item.base_domain }}.
+  ansible.builtin.file:
+    path: "{{ acme_files_dir }}"
+    state: directory
+  delegate_to: localhost
+  run_once: true
+
+- name: Generate an OpenSSL RSA 4096 private key for account for {{ item.base_domain }}.
   community.crypto.openssl_privatekey:
     path: "{{ acme_private_account_key_dir }}"
     size: 4096
@@ -8,7 +15,7 @@
   delegate_to: localhost
   run_once: true
 
-- name: Generate an OpenSSL RSA 4096 private key for CSR.
+- name: Generate an OpenSSL RSA 4096 private key for CSR for {{ item.base_domain }}.
   community.crypto.openssl_privatekey:
     path: "{{ acme_private_cert_key_dir }}"
     size: 4096
@@ -16,12 +23,12 @@
   delegate_to: localhost
   run_once: true
 
-- name: Generate an OpenSSL Certificate Signing Request.
+- name: Generate an OpenSSL Certificate Signing Request for {{ item.base_domain }}.
   community.crypto.openssl_csr:
     path: "{{ acme_csr_dir }}"
     privatekey_path: "{{ acme_private_cert_key_dir }}"
     country_name: "{{ cert_country_id }}"
-    common_name: "{{ base_domain }}"
+    common_name: "{{ item.base_domain }}"
     organization_name: "{{ cert_org_name }}"
     email_address: "{{ acme_account_email }}"
     subject_alt_name: "{{ cert_san | map('regex_replace', '^', 'DNS:') | list }}"
