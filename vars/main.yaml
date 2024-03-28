@@ -1,8 +1,6 @@
 ---
 # ./vars/main.yaml
 
-base_domain_wildcard: "*.{{ item.base_domain }}"
-
 acme_files_dir: "{{ cert_files_dir }}/wildcard.{{ item.base_domain }}"
 acme_private_account_key_dir: "{{ acme_files_dir }}/wildcard.{{ item.base_domain }}-account-private.key"
 acme_private_cert_key_dir: "{{ acme_files_dir }}/wildcard.{{ item.base_domain }}-cert-private.key"
