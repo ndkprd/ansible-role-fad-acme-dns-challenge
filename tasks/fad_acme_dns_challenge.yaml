@@ -1,6 +1,6 @@
 ---
 
-- name: Create a challenge for the wildcard domain using account key file.
+- name: Create a challenge for the wildcard domain using account key file for {{ item.base_domain }}.
   community.crypto.acme_certificate:
     account_key_src: "{{ acme_private_account_key_dir }}"
     account_email: "{{ acme_account_email }}"
@@ -19,21 +19,21 @@
   #ansible.builtin.debug:
     #var: dns_challenge
 
-- name: Extract the DNS-01 ACME Challenge TXT value for base domain.
+- name: Extract the DNS-01 ACME Challenge TXT value for base domain for {{ item.base_domain }}.
   ansible.builtin.set_fact:
     base_dns_challenge_txt: "{{ dns_challenge.challenge_data[item.base_domain]['dns-01'].resource_value }}"
   when: dns_challenge.challenge_data[base_domain]['dns-01'].resource_value is defined
   delegate_to: localhost
   run_once: true
 
-- name: Extract the DNS-01 ACME Challenge TXT value for wildcard domain.
+- name: Extract the DNS-01 ACME Challenge TXT value for wildcard domain for {{ item.base_domain }}.
   ansible.builtin.set_fact:
     wildcard_dns_challenge_txt: "{{ dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value }}"
   when: dns_challenge.challenge_data[base_domain_wildcard]['dns-01'].resource_value is defined
   delegate_to: localhost
   run_once: true
 
-- name: Update TXT Record on FortiADC using REST API for base domain.
+- name: Update TXT Record on FortiADC using REST API for base domain for {{ item.base_domain }}.
   ansible.builtin.uri:
     method: PUT
     url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?vdom={{ fad_vdom }}&pkey=fqdn_generate_{{ item.base_domain }}.&mkey=1001"
@@ -58,7 +58,7 @@
   # debug:
     # var: post_base_domain_txt_result
 
-- name: Update TXT Record on FortiADC using REST API for wildcard domain.
+- name: Update TXT Record on FortiADC using REST API for wildcard domain for {{ item.base_domain }}.
   ansible.builtin.uri:
     method: PUT
     url: "https://{{ ansible_host }}/api/global_dns_server_zone_child_txt_record?vdom={{ fad_vdom }}&pkey=fqdn_generate_{{ item.base_domain }}.&mkey=1002"
@@ -83,14 +83,14 @@
   # debug:
     # var: post_wildcard_domain_txt_result
 
-- name: Wait for 30 seconds.
+- name: Wait for 30 seconds for {{ item.base_domain }}.
   ansible.builtin.pause:
     seconds: 30
   when: base_dns_challenge_txt is defined or wildcard_dns_challenge_txt is defined
   delegate_to: localhost
   run_once: true
 
-- name: Let the challenge be validated and retrieve the cert and intermediate certificate.
+- name: Let the challenge be validated and retrieve the cert and intermediate certificate for {{ item.base_domain }}.
   community.crypto.acme_certificate:
     account_key_src: "{{ acme_private_account_key_dir }}"
     account_email: "{{ acme_account_email }}"

@@ -7,7 +7,7 @@
   delegate_to: localhost
   run_once: true
 
-- name: Send the files via SMTP.
+- name: Send the files of {{ item.base_domain }} certificates via SMTP.
   community.general.mail:
     host: "{{ collect_mail.smtp_server }}"
     port: "{{ collect_mail.smtp_port }}"
