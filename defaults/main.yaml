@@ -1,14 +1,14 @@
-base_domain: devops.ndkprd.com
-  
+acme_domain: devops.ndkprd.com
+acme_files_dir: "{{ acme_cert_files_dir }}/wildcard.{{ acme_domain }}"
 acme_server_dir: "https://acme-staging-v02.api.letsencrypt.org/directory" # ACME directory to be used
 acme_remaining_days: 30 # if the current cert expired days is less than this, then renew
 acme_account_email: "contact@ndkprd.com"
 
-cert_files_dir: /home/{{ ansible_user }}/letsencrypt # server dir to save the cert files
-cert_country_id: ID
-cert_org_name: ndkprd.com
+acme_cert_files_dir: /home/{{ ansible_user }}/letsencrypt # server dir to save the cert files
+acme_cert_country_id: ID
+acme_cert_org_name: ndkprd.com
 
-collect_mail:
+acme_collect_mail:
   smtp_server: 10.10.10.10
   smtp_port: 25
   recipient: contact@ndkprd.com

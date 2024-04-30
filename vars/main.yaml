@@ -1,14 +1,42 @@
 ---
 # ./vars/main.yaml
 
-acme_files_dir: "{{ cert_files_dir }}/wildcard.{{ item.base_domain }}"
-acme_private_account_key_dir: "{{ acme_files_dir }}/wildcard.{{ item.base_domain }}-account-private.key"
-acme_private_cert_key_dir: "{{ acme_files_dir }}/wildcard.{{ item.base_domain }}-cert-private.key"
-acme_csr_dir: "{{ acme_files_dir }}/wildcard.{{ item.base_domain }}.csr"
-acme_cert_dir: "{{ acme_files_dir }}/wildcard.{{ item.base_domain }}.crt"
-acme_cert_fullchain_dir: "{{ acme_files_dir }}/wildcard.{{ item.base_domain }}-fullchain.crt"
-acme_cert_intermediate_dir: "{{ acme_files_dir }}//wildcard.{{ item.base_domain }}-intermediate.crt"
+acme_server_packages:
+  - openssl
+  - python3
+  - python3-pip
+  - python3-setuptools
 
-cert_san:
-  - "{{ item.base_domain }}"
-  - "{{ base_domain_wildcard }}"
+acme_pip_packages:
+  - cryptography
+
+acme_private_account_key_dir: "{{ acme_files_dir }}/wildcard.{{ acme_domain }}_account_private.key"
+acme_private_cert_key_dir: "{{ acme_files_dir }}/wildcard.{{ acme_domain }}_cert_private.key"
+acme_csr_dir: "{{ acme_files_dir }}/wildcard.{{ acme_domain }}.csr"
+acme_cert_dir: "{{ acme_files_dir }}/wildcard.{{ acme_domain }}.crt"
+acme_cert_fullchain_dir: "{{ acme_files_dir }}/wildcard.{{ acme_domain }}_fullchain.crt"
+acme_cert_intermediate_dir: "{{ acme_files_dir }}//wildcard.{{ acme_domain }}_intermediate.crt"
+
+acme_domain_wildcard: "*.{{ acme_domain }}"
+
+acme_cert_san:
+  - "{{ acme_domain }}"
+  - "{{ acme_domain_wildcard }}"
+
+fad_dns_zones:
+  - name: "{{ acme_domain }}"
+    dns_policy: "{{ fad_zone_config.dns_policy }}"
+    ttl: "{{ fad_zone_config.ttl }}"
+    negative_ttl: "{{ fad_zone_config.negative_ttl }}"
+    primary_ns_ipv4: "{{ fad_zone_config.primary_ns_ipv4 }}"
+    primary_ns_ipv6: "{{ fad_zone_config.primary_ns_ipv6 }}"
+    primary_ns_name: "{{ fad_zone_config.primary_ns_name }}"
+    responsible_mail: "{{ fad_zone_config.responsible_mail }}"
+    allow_transfer: "{{ fad_zone_config.allow_transfer }}"
+    txt_records:
+      - id: 9998
+        name: "_acme-challenge"
+        text: "{{ acme_dns_challenge_results.challenge_data[acme_domain]['dns-01'].resource_value }}"
+      - id: 9999
+        name: "_acme-challenge"
+        text: "{{ acme_dns_challenge_results.challenge_data[acme_domain_wildcard]['dns-01'].resource_value }}"

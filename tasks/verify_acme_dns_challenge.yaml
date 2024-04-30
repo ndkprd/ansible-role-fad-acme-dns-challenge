@@ -1,0 +1,25 @@
+---
+
+- name: Wait for 30 seconds for {{ acme_domain }}
+  ansible.builtin.pause:
+    seconds: 30
+  when:
+    dns_challenge_txt_base_domain is defined or
+    dns_challenge_txt_wildcard_domain is defined
+  run_once: true
+
+- name: Let the challenge be validated and retrieve the cert and intermediate certificate for {{ acme_domain }}
+  become: true
+  community.crypto.acme_certificate:
+    account_key_src: "{{ acme_private_account_key_dir }}"
+    account_email: "{{ acme_account_email }}"
+    src: "{{ acme_csr_dir }}"
+    cert: "{{ acme_cert_dir }}"
+    fullchain: "{{ acme_cert_fullchain_dir }}"
+    chain: "{{ acme_cert_intermediate_dir }}"
+    challenge: dns-01
+    acme_directory: "{{ acme_server_dir }}"
+    remaining_days: "{{ acme_remaining_days }}"
+    acme_version: 2
+    data: "{{ acme_dns_challenge_results }}"
+  run_once: true

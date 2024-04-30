@@ -1,0 +1,22 @@
+---
+
+- name: Create a challenge for the wildcard domain using account key file for {{ acme_domain }}
+  become: true
+  community.crypto.acme_certificate:
+    account_key_src: "{{ acme_private_account_key_dir }}"
+    account_email: "{{ acme_account_email }}"
+    src: "{{ acme_csr_dir }}"
+    cert: "{{ acme_cert_dir }}"
+    challenge: "dns-01"
+    acme_directory: "{{ acme_server_dir }}"
+    remaining_days: "{{ acme_remaining_days }}"
+    acme_version: 2
+    terms_agreed: true
+  register: acme_dns_challenge_results
+  run_once: true
+
+- name: Debug dns_challenge variable for {{ acme_domain }}
+  ansible.builtin.debug:
+    var: acme_dns_challenge_results
+  run_once: true
+  tags: [debug]

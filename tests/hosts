@@ -1,0 +1,2 @@
+[fortiadc_public]
+fad-public.hq.staging.asdp.id ansible_host=fad.hq.asdp.id fad_apitoken=a53a8e9f8df91e25a70dae6c3f7b4436 fad_vdom=public-staging

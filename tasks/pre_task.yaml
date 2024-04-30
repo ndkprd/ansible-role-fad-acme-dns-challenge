@@ -2,26 +2,13 @@
 
 - name: Make sure OpenSSL and python-pip is installed.
   ansible.builtin.package:
-    name:
-      - openssl
-      - python3
-      - python3-pip
-      - python3-setuptools
+    name: "{{ acme_server_packages }}"
     state: present
     update_cache: true
-  delegate_to: localhost
   run_once: true
 
-- name: Set Python interpreter
-  ansible.builtin.set_fact:
-    ansible_python_interpreter: /bin/python3
-  delegate_to: localhost
-  run_once: true
-  
-- name: Make sure the needed Python module is installed.
+- name: Make sure the needed pip module is installed.
   ansible.builtin.pip:
-    name:
-      - cryptography
+    name: "{{ acme_pip_packages }}"
     state: present
-  delegate_to: localhost
   run_once: true

@@ -1,0 +1,5 @@
+---
+
+roles:
+  - ndkprd.fad_acme_dns_challenge
+  - ndkprd.fad_dns_zone
