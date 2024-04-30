@@ -15,8 +15,8 @@
   community.general.mail:
     host: "{{ acme_collect_mail.smtp_server }}"
     port: "{{ acme_collect_mail.smtp_port }}"
-    # username: your_email@example.com
-    # password: your_password
+    username: "{{ acme_collect_mail.username | default(omit) }}"
+    password: "{{ acme_collect_mail.password | default(omit) }}"
     from: "{{ acme_collect_mail.sender }}"
     to: "{{ acme_collect_mail.recipient }}"
     subject: "Let's Encrypt Certificate Files of {{ acme_domain }}"

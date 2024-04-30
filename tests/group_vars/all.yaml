@@ -14,6 +14,8 @@ acme_collect_mail:
   smtp_port: 25
   recipient: "andhika.pradana@asdp.id"
   sender: "ansible@asdp.id"
+  username: ""
+  password: ""
 
 acme_cert_files_dir: "/home/{{ ansible_user }}/letsencrypt"
 acme_cert_country_id: ID
