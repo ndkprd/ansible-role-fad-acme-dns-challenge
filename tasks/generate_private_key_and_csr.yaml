@@ -1,44 +1,62 @@
 ---
 
-- name: Set the base domain value for {{ item.base_domain }}.
-  ansible.builtin.set_fact:
-    base_domain: "{{ item.base_domain }}"
-
-- name: Set the wildcard value for {{ item.base_domain }}.
-  ansible.builtin.set_fact:
-    base_domain_wildcard: "*.{{ item.base_domain }}"
-
-- name: Make sure the needed directory exists for {{ item.base_domain }}.
+- name: Make sure the needed directory exists for {{ acme_domain }}
   ansible.builtin.file:
     path: "{{ acme_files_dir }}"
     state: directory
-  delegate_to: localhost
+    mode: "644"
+    owner: "{{ ansible_user }}"
+  register: acme_files_dir_results
   run_once: true
 
-- name: Generate an OpenSSL RSA 4096 private key for account for {{ item.base_domain }}.
+- name: Debug out the path.
+  ansible.builtin.debug:
+    msg:
+      - "Directory {{ acme_files_dir_results.path }} is created/already exists."
+  tags: [debug]
+
+- name: Generate an OpenSSL RSA 4096 private key for account for {{ acme_domain }}
   community.crypto.openssl_privatekey:
     path: "{{ acme_private_account_key_dir }}"
     size: 4096
     type: RSA
-  delegate_to: localhost
+  register: acme_account_private_key_results
   run_once: true
 
-- name: Generate an OpenSSL RSA 4096 private key for CSR for {{ item.base_domain }}.
+- name: Debug out the generated account key.
+  ansible.builtin.debug:
+    msg:
+      - "The private key for Letsencrypt account is generated at {{ acme_account_private_key_results.filename }}."
+  tags: [debug]
+
+- name: Generate an OpenSSL RSA 4096 private key for CSR for {{ acme_domain }}.
   community.crypto.openssl_privatekey:
     path: "{{ acme_private_cert_key_dir }}"
     size: 4096
     type: RSA
-  delegate_to: localhost
+  register: acme_csr_private_key_results
   run_once: true
 
-- name: Generate an OpenSSL Certificate Signing Request for {{ item.base_domain }}.
+- name: Debug out the generated CSR private key.
+  ansible.builtin.debug:
+    msg:
+      - "The private key for the CSR is generated at {{ acme_csr_private_key_results.filename }}."
+  tags: [debug]
+
+- name: Generate an OpenSSL Certificate Signing Request for {{ acme_domain }}
   community.crypto.openssl_csr:
     path: "{{ acme_csr_dir }}"
     privatekey_path: "{{ acme_private_cert_key_dir }}"
-    country_name: "{{ cert_country_id }}"
-    common_name: "{{ item.base_domain }}"
-    organization_name: "{{ cert_org_name }}"
+    country_name: "{{ acme_cert_country_id }}"
+    common_name: "{{ acme_domain }}"
+    organization_name: "{{ acme_cert_org_name }}"
     email_address: "{{ acme_account_email }}"
-    subject_alt_name: "{{ cert_san | map('regex_replace', '^', 'DNS:') | list }}"
-  delegate_to: localhost
+    subject_alt_name: "{{ acme_cert_san | map('regex_replace', '^', 'DNS:') | list }}"
   run_once: true
+  register: acme_csr_generate_result
+
+- name: Debug out the generated CSR.
+  ansible.builtin.debug:
+    msg:
+      - "The CSR is generated at {{ acme_csr_generate_result.filename }}."
+  tags: [debug]

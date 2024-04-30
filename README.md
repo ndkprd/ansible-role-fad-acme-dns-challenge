@@ -10,63 +10,49 @@
 2. Do ACME DNS-01 challenge;
 3. Add TXT record to FortiADC;
 4. Verify and pull all the certificate files into localhost (at this point you should be able to use the certificate normally);
-5. Zip it and send it to your email.
+5. (optional) Zip it and send it to your email.
 
 ## Usage
-
-### Install Role
-
-#### Create Requirement Files
-
-```yaml
----
-# ./requirements.yaml
-
-- src: https://github.com/ndkprd/ansible-role-fortiadc-acme-dns-01.git
-  scm: git
-  version: main
-```
-
-#### Install Role from Requirement
-
-```bash
-ansible-galaxy install --role-file requirements.yaml --roles-path ./roles --force
-```
 
 ### Playbook Example
 
 ```yaml
-# ./playbook.yaml
+---
 
-- name: Do ACME DNS-01 challenge against FortiADC.
-  hosts: fortiadc
+- name: Update/create FortiADC GLB Resources.
+  hosts: all
   become: false
   gather_facts: false
-  vars_files:
-    - fortiadc-acme-dns-01-vars.yaml
+  connection: local
+  vars:
+    ansible_user: ndkprd
+    acme_domain: devops.ndkprd.com
+    acme_account_email: "contact@ndkprd.com"
+    acme_files_dir: "{{ acme_cert_files_dir }}/wildcard.{{ acme_domain }}"
+    acme_remaining_days: 30
+    acme_server_dir: "https://acme-staging-v02.api.letsencrypt.org/directory"
+    acme_collect_mail:
+      enabled: true
+      smtp_server: 10.1.54.10
+      smtp_port: 25
+      recipient: "andhika.pradana@asdp.id"
+      sender: "ansible@asdp.id"
+    acme_cert_files_dir: "/home/{{ ansible_user }}/letsencrypt"
+    acme_cert_country_id: ID
+    acme_cert_org_name: ndkprd.com
+    fad_zone_config:
+      dns_policy: "DEFAULT_DNS_POLICY"
+      ttl: "86400"
+      negative_ttl: "3600"
+      primary_ns_ipv4: "103.219.197.41"
+      primary_ns_ipv6: "::"
+      primary_ns_name: "ns2"
+      responsible_mail: "it.dctn.asdp.id."
+      allow_transfer: ""
 
   roles:
-    - ansible-role-fortiadc-acme-dns-01
-```
+    - ../../ansible-role-fad-acme-dns-01
 
-### Needed Variables Example
-
-```yaml
-base_domain: devops.ndkprd.com
-  
-acme_server_dir: "https://acme-staging-v02.api.letsencrypt.org/directory" # ACME directory to be used
-acme_remaining_days: 30 # if the current cert expired days is less than this, then renew
-acme_account_email: "contact@ndkprd.com"
-
-cert_files_dir: /home/{{ ansible_user }}/letsencrypt # server dir to save the cert files
-cert_country_id: ID
-cert_org_name: ndkprd.com
-
-collect_mail:
-  smtp_server: 10.10.10.10
-  smtp_port: 25
-  recipient: contact@ndkprd.com
-  sender: ansible@ndkprd.com
 ```
 
 ### Hosts File Example

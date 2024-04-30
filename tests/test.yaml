@@ -1,0 +1,12 @@
+---
+
+- name: Update/create FortiADC GLB Resources.
+  hosts: all
+  become: false
+  gather_facts: false
+  connection: local
+  vars:
+    ansible_user: ndkprd
+
+  roles:
+    - ../../ansible-role-fad-acme-dns-01

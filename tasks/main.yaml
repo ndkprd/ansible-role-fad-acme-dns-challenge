@@ -1,17 +1,35 @@
 ---
 # ./tasks/main.yaml
 
-- name: Include pre-task tasks.
-  include_tasks: pre_task.yaml
+- name: Import pre-task tasks.
+  become: true
+  ansible.builtin.import_tasks: pre_task.yaml
+  tags: [fad_acme_dns_challenge, pre_task]
 
-- name: Include tasks to generate private key and CSR.
-  include_tasks: generate_private_key_and_csr.yaml
-  loop: "{{ acme_domains }}"
+- name: Import tasks to generate private key and CSR.
+  become: true
+  ansible.builtin.import_tasks: generate_private_key_and_csr.yaml
+  tags: [fad_acme_dns_challenge, acme_generate_key]
 
-- name: Include tasks to do DNS-01 ACME challenge using FortiADC.
-  include_tasks: fad_acme_dns_challenge.yaml
-  loop: "{{ acme_domains }}"
+# - name: Include tasks to do DNS-01 ACME challenge using FortiADC.
+  # ansible.builtin.include_tasks: fad_acme_dns_challenge.yaml
+  # loop: "{{ acme_domains }}"
+  # tags: [fad_acme_dns_challenge, acme_challenge]
+
+- name: Import ACME DNS challenge request tasks.
+  ansible.builtin.import_tasks: request_acme_dns_challenge.yaml
+  tags: [fad_acme_dns_challenge, acme_request]
+
+- name: Include role to insert _acme-challenge TXT record to FortiADC.
+  ansible.builtin.include_role:
+    name: ndkprd.fad_dns_zone
+  tags: [fad_acme_dns_challenge, acme_challenge, fad_dns_zone, fad_dns_zone_txt_record]
+
+- name: Import ACME DNS challenge verification tasks.
+  ansible.builtin.import_tasks: verify_acme_dns_challenge.yaml
+  tags: [fad_acme_dns_challenge, acme_verify]
 
 - name: Include tasks to collect the files via email.
-  include_tasks: collect_certificate_files.yaml
-  loop: "{{ acme_domains }}"
+  ansible.builtin.import_tasks: collect_certificate_files.yaml
+  tags: [fad_acme_dns_challenge, collect_certificate]
+  when: acme_collect_mail.enabled
