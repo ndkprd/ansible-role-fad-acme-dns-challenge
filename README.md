@@ -33,10 +33,10 @@
     acme_server_dir: "https://acme-staging-v02.api.letsencrypt.org/directory"
     acme_collect_mail:
       enabled: true
-      smtp_server: 10.1.54.10
+      smtp_server: 10.10.10.2
       smtp_port: 25
-      recipient: "andhika.pradana@asdp.id"
-      sender: "ansible@asdp.id"
+      recipient: "me@ndkprd.com"
+      sender: "me@ndkprd.com"
     acme_cert_files_dir: "/home/{{ ansible_user }}/letsencrypt"
     acme_cert_country_id: ID
     acme_cert_org_name: ndkprd.com
@@ -44,10 +44,10 @@
       dns_policy: "DEFAULT_DNS_POLICY"
       ttl: "86400"
       negative_ttl: "3600"
-      primary_ns_ipv4: "103.219.197.41"
+      primary_ns_ipv4: "10.10.10.10"
       primary_ns_ipv6: "::"
       primary_ns_name: "ns2"
-      responsible_mail: "it.dctn.asdp.id."
+      responsible_mail: "admin"
       allow_transfer: ""
 
   roles:
